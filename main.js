@@ -121,7 +121,7 @@ class MessageWidget {
                 <textarea
                 id="message"
                 name="message"
-                placeholder="Enter your message"
+                placeholder="Ingrese su mensaje"
                 rows="6"
                 ></textarea>
             </div>
