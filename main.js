@@ -65,11 +65,12 @@ class MessageWidget {
     container.appendChild(this.widgetContainer);
     container.appendChild(buttonContainer);
   }
-  addSubmitHandler(){
-    this.widgetContainer.getElementById('loginForm').addEventListener('submit', function(event) {
+  addSubmitHandler() {
+    this.widgetContainer.attachShadow({ mode: 'open' });
+    this.widgetContainer.shadowRoot.getElementById('loginForm').addEventListener('submit', function(event) {
         event.preventDefault();
-        const email = this.widgetContainer.getElementById('email').value;
-        const password = this.widgetContainer.getElementById('password').value;
+        const email = this.widgetContainer.shadowRoot.getElementById('email').value;
+        const password = this.widgetContainer.shadowRoot.getElementById('password').value;
         fetch(`https://api-dev.griot.com.co/api/v1/public/identity/tenant/unknown/user/${email}/sign-in`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -89,8 +90,10 @@ class MessageWidget {
         .catch(error => console.error('Error:', error));
       });
   }
+
   createWidgetContent() {
-    this.widgetContainer.innerHTML = `
+    const container = document.createElement('div');
+    container.innerHTML = `
         <header class="widget__header">
             <h3>Griot Chat</h3>
         </header>
@@ -117,6 +120,7 @@ class MessageWidget {
             <button>Send Message</button>
         </form>
     `;
+    this.widgetContainer.shadowRoot.appendChild(container);
   }
 
   injectStyles() {
