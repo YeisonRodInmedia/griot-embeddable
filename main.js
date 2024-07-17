@@ -53,79 +53,67 @@ class MessageWidget {
     closeIconElement.classList.add("widget__icon", "widget__hidden");
     this.closeIcon = closeIconElement;
 
-    /**
-     * Append both icons created to the button element and add a `click` event listener on the button to toggle the widget open and close.
-     */
     buttonContainer.appendChild(this.widgetIcon);
     buttonContainer.appendChild(this.closeIcon);
     buttonContainer.addEventListener("click", this.toggleOpen.bind(this));
 
-    /**
-     * Create a container for the widget and add the following classes:- "widget__hidden", "widget__container"
-     */
     this.widgetContainer = document.createElement("div");
     this.widgetContainer.classList.add("widget__hidden", "widget__container");
 
-    /**
-     * Invoke the `createWidget()` method
-     */
     this.createWidgetContent();
-
-    /**
-     * Append the widget's content and the button to the container
-     */
+    this.addSubmitHandler();
     container.appendChild(this.widgetContainer);
     container.appendChild(buttonContainer);
   }
-
+  addSubmitHandler(){
+    this.widgetContainer.getElementById('loginForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const email = this.widgetContainer.getElementById('email').value;
+        const password = this.widgetContainer.getElementById('password').value;
+        fetch(`https://api-dev.griot.com.co/api/v1/public/identity/tenant/unknown/user/${email}/sign-in`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: password }),
+          cache: false
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.token) {
+            localStorage.setItem('authToken', data.access_token);
+            console.log(data);
+            alert('Login successful!');
+          } else {
+            alert('Invalid credentials');
+          }
+        })
+        .catch(error => console.error('Error:', error));
+      });
+  }
   createWidgetContent() {
     this.widgetContainer.innerHTML = `
         <header class="widget__header">
-            <h3>Start a conversation</h3>
-            <p>We usually respond within a few hours</p>
+            <h3>Griot Chat</h3>
         </header>
 
-        <form>
+        <form id="loginForm">
             <div class="form__field">
-                <label for="name">Name</label>
+                <label for="name">Email</label>
                 <input
                 type="text"
-                id="name"
-                name="name"
-                placeholder="Enter your name"
+                id="email"
+                name="email"
+                placeholder="Ingrese su Email"
                 />
             </div>
 
             <div class="form__field">
                 <label for="email">Email</label>
-                <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="Enter your email"
-                />
+                <input 
+                type="password" 
+                id="password" 
+                placeholder="Password" 
+                required/>
             </div>
-
-            <div class="form__field">
-                <label for="subject">Subject</label>
-                <input
-                type="text"
-                id="subject"
-                name="subject"
-                placeholder="Enter Message Subject"
-                />
-            </div>
-
-            <div class="form__field">
-                <label for="message">Message</label>
-                <textarea
-                id="message"
-                name="message"
-                placeholder="Ingrese su mensaje"
-                rows="6"
-                ></textarea>
-            </div>
-
             <button>Send Message</button>
         </form>
     `;
@@ -146,6 +134,7 @@ class MessageWidget {
       this.widgetContainer.classList.remove("widget__hidden");
     } else {
       this.createWidgetContent();
+      this.addSubmitHandler();
       this.widgetIcon.classList.remove("widget__hidden");
       this.closeIcon.classList.add("widget__hidden");
       this.widgetContainer.classList.add("widget__hidden");
